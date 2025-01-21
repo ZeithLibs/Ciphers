@@ -13,7 +13,7 @@ maven {
 }
 
 dependencies {
-    implementation 'org.zeith.libs:Ciphers:1.0.0'
+    implementation 'org.zeith.libs:CipherLib:1.0.0'
 }
 ```
 
