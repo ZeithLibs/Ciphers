@@ -1,0 +1,57 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group = 'org.zeith'
+version = buildVersion
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+}
+
+tasks.register('srcJar', Jar) {
+    dependsOn classes
+    from sourceSets.main.allSource
+    archiveClassifier = 'sources'
+}
+
+tasks.register('javadocJar', Jar) {
+    dependsOn classes
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+artifacts {
+    archives srcJar
+    archives javadocJar
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'org.zeith.libs'
+            artifactId = 'CipherLib'
+            version = buildVersion
+            from components.java
+
+            pom {
+                name = 'CipherLib'
+                description = 'Library for establishing secure connections between client and server using AES and RSA keys.'
+                dependencies {
+                }
+            }
+
+            artifact srcJar
+            artifact javadocJar
+        }
+    }
+    repositories {
+        maven {
+            url System.env.MAVEN_URL
+        }
+    }
+}
