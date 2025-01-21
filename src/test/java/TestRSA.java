@@ -2,9 +2,9 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 
 import org.zeith.crypto.ClientCipher;
-import org.zeith.crypto.ClientShake;
+import org.zeith.crypto.ClientKeyGen;
 import org.zeith.crypto.ServerCipher;
-import org.zeith.crypto.ServerShake;
+import org.zeith.crypto.ServerKeyGen;
 
 public class TestRSA
 {
@@ -13,13 +13,13 @@ public class TestRSA
 		try
 		{
 			// Create a server shake with RSA
-			ServerShake serv1 = new ServerShake("RSA");
+			ServerKeyGen serv1 = new ServerKeyGen("RSA");
 			
 			// Generate a public key to send to client:
 			byte[] sr_shake = serv1.generateServerShake();
 			
 			// Create a client shake with RSA using received public key:
-			ClientShake client1 = new ClientShake("RSA", sr_shake);
+			ClientKeyGen client1 = new ClientKeyGen("RSA", sr_shake);
 			
 			// Converting the client shake to a cipher with symmetrical key:
 			ClientCipher cc = client1.generateCipher("AES");

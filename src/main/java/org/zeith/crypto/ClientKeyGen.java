@@ -11,7 +11,7 @@ import javax.crypto.KeyGenerator;
  * The ClientShake class facilitates the client-side portion of a cryptographic handshake,
  * including processing the server's handshake data and generating a cipher.
  */
-public class ClientShake
+public class ClientKeyGen
 {
 	private final PublicKey key;
 	
@@ -26,7 +26,7 @@ public class ClientShake
 	 * @throws GeneralSecurityException
 	 * 		if key processing fails.
 	 */
-	public ClientShake(String algorithm, byte[] serverShake)
+	public ClientKeyGen(String algorithm, byte[] serverShake)
 			throws GeneralSecurityException
 	{
 		this(KeyFactory.getInstance(algorithm), serverShake);
@@ -43,7 +43,7 @@ public class ClientShake
 	 * @throws GeneralSecurityException
 	 * 		if key processing fails.
 	 */
-	public ClientShake(KeyFactory algorithm, byte[] serverShake)
+	public ClientKeyGen(KeyFactory algorithm, byte[] serverShake)
 			throws GeneralSecurityException
 	{
 		this.key = algorithm.generatePublic(new X509EncodedKeySpec(serverShake));

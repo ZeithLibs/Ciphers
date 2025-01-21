@@ -17,8 +17,9 @@ import javax.crypto.spec.SecretKeySpec;
  * It generates a public-private key pair and provides functionality to generate and process
  * cryptographic data for secure communication with a client.
  */
-public class ServerShake
+public class ServerKeyGen
 {
+	private final String algorithm;
 	private final KeyPair pair;
 	
 	/**
@@ -30,7 +31,7 @@ public class ServerShake
 	 * @throws NoSuchAlgorithmException
 	 * 		if the specified algorithm is invalid or unavailable.
 	 */
-	public ServerShake(String algorithm)
+	public ServerKeyGen(String algorithm)
 			throws NoSuchAlgorithmException
 	{
 		this(KeyPairGenerator.getInstance(algorithm));
@@ -45,9 +46,10 @@ public class ServerShake
 	 * @throws NoSuchAlgorithmException
 	 * 		if the algorithm associated with the {@link KeyPairGenerator} is invalid.
 	 */
-	public ServerShake(KeyPairGenerator algorithm)
+	public ServerKeyGen(KeyPairGenerator algorithm)
 			throws NoSuchAlgorithmException
 	{
+		this.algorithm = algorithm.getAlgorithm();
 		this.pair = algorithm.generateKeyPair();
 	}
 	
@@ -62,8 +64,16 @@ public class ServerShake
 	}
 	
 	/**
+	 * Retrieves the algorithm name for this key generator.
+	 */
+	public String getAlgorithm()
+	{
+		return algorithm;
+	}
+	
+	/**
 	 * Generates the server's handshake data, which consists of the encoded public key.
-	 * This is what you should be sending off to clients to create {@link ClientShake}.
+	 * This is what you should be sending off to clients to create {@link ClientKeyGen}.
 	 *
 	 * @return a byte array containing the encoded public key.
 	 */
