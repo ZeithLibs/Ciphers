@@ -68,7 +68,7 @@ public class ClientWebsocketListener
 					ndata.putInt(MAGIC_NUMBER);
 					ndata.putShort((short) key.length);
 					ndata.put(key);
-					webSocket.sendBinary(ndata, true);
+					webSocket.sendBinary(ndata.flip(), true);
 				} catch(GeneralSecurityException e)
 				{
 					throw new WebSocketDecryptionException("Failed to initialize client cipher", e);
