@@ -253,7 +253,7 @@ public class CipheredWebsocketListener
 		{
 			throw new WebSocketDecryptionException("Decryption failed", e);
 		}
-		return message;
+		return message.flip();
 	}
 	
 	/**
@@ -278,7 +278,7 @@ public class CipheredWebsocketListener
 		{
 			throw new WebSocketDecryptionException("Encryption failed", e);
 		}
-		return message;
+		return message.flip();
 	}
 	
 	@Override
