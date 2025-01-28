@@ -38,6 +38,63 @@ public class CipheredWebsocketListener
 	}
 	
 	/**
+	 * Sends a text message through the WebSocket after the connection cipher has been established.
+	 *
+	 * @param text
+	 * 		the plain text message to be sent.
+	 * @param last
+	 * 		indicates if this is the last part of a multipart message.
+	 */
+	public CompletableFuture<WebSocket> sendText(String text, boolean last)
+	{
+		try
+		{
+			// Encoded base64 -> decoded UTF-8 text
+			text = Base64.getEncoder().encodeToString(cipher.encrypt(text.getBytes(StandardCharsets.UTF_8)));
+		} catch(GeneralSecurityException e)
+		{
+			throw new WebSocketDecryptionException("Failed to encrypt WebSocket text message.", e);
+		}
+		
+		return webSocket.sendText(text, last);
+	}
+	
+	/**
+	 * Sends a binary message through the WebSocket after the connection cipher has been established.
+	 *
+	 * @param message
+	 * 		the binary message buffer to be sent.
+	 * @param last
+	 * 		indicates if this is the last part of a multipart message.
+	 */
+	public CompletableFuture<WebSocket> sendBinary(ByteBuffer message, boolean last)
+	{
+		return webSocket.sendBinary(encrypt(message), last);
+	}
+	
+	/**
+	 * Sends a ping message through the WebSocket after the connection cipher has been established.
+	 *
+	 * @param ping
+	 * 		the ping binary message buffer to be sent.
+	 */
+	public CompletableFuture<WebSocket> sendPing(ByteBuffer ping)
+	{
+		return webSocket.sendPing(encrypt(ping));
+	}
+	
+	/**
+	 * Sends a pong message through the WebSocket after the connection cipher has been established.
+	 *
+	 * @param ping
+	 * 		the pong binary message buffer to be sent.
+	 */
+	public CompletableFuture<WebSocket> sendPong(ByteBuffer ping)
+	{
+		return webSocket.sendPong(encrypt(ping));
+	}
+	
+	/**
 	 * Gets the current WebSocket instance.
 	 *
 	 * @return the WebSocket instance, or {@code null} if the connection is closed.
@@ -58,31 +115,6 @@ public class CipheredWebsocketListener
 	{
 		this.webSocket = webSocket;
 		delegate.onOpen(webSocket);
-	}
-	
-	/**
-	 * Decrypts a binary message using the established cipher.
-	 *
-	 * @param message
-	 * 		the encrypted binary message buffer.
-	 *
-	 * @return a decrypted {@link ByteBuffer}.
-	 *
-	 * @throws RuntimeException
-	 * 		if decryption fails.
-	 */
-	protected ByteBuffer decrypt(ByteBuffer message)
-	{
-		byte[] tmp = new byte[message.remaining()];
-		message.get(tmp);
-		try
-		{
-			message = ByteBuffer.wrap(cipher.decrypt(tmp));
-		} catch(GeneralSecurityException e)
-		{
-			throw new WebSocketDecryptionException("Decryption failed", e);
-		}
-		return message;
 	}
 	
 	/**
@@ -197,6 +229,56 @@ public class CipheredWebsocketListener
 	public void onError(WebSocket webSocket, Throwable error)
 	{
 		delegate.onError(webSocket, error);
+	}
+	
+	/**
+	 * Decrypts a binary message using the established cipher.
+	 *
+	 * @param message
+	 * 		the encrypted binary message buffer.
+	 *
+	 * @return a decrypted {@link ByteBuffer}.
+	 *
+	 * @throws RuntimeException
+	 * 		if decryption fails.
+	 */
+	protected ByteBuffer decrypt(ByteBuffer message)
+	{
+		byte[] tmp = new byte[message.remaining()];
+		message.get(tmp);
+		try
+		{
+			message = ByteBuffer.wrap(cipher.decrypt(tmp));
+		} catch(GeneralSecurityException e)
+		{
+			throw new WebSocketDecryptionException("Decryption failed", e);
+		}
+		return message;
+	}
+	
+	/**
+	 * Encrypts a binary message using the established cipher.
+	 *
+	 * @param message
+	 * 		the binary message buffer to be encrypted.
+	 *
+	 * @return an encrypted {@link ByteBuffer}.
+	 *
+	 * @throws RuntimeException
+	 * 		if encryption fails.
+	 */
+	protected ByteBuffer encrypt(ByteBuffer message)
+	{
+		byte[] tmp = new byte[message.remaining()];
+		message.get(tmp);
+		try
+		{
+			message = ByteBuffer.wrap(cipher.encrypt(tmp));
+		} catch(GeneralSecurityException e)
+		{
+			throw new WebSocketDecryptionException("Encryption failed", e);
+		}
+		return message;
 	}
 	
 	@Override
