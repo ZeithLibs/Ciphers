@@ -1,5 +1,7 @@
 package org.zeith.crypto;
 
+import javax.crypto.*;
+import java.io.*;
 import java.security.GeneralSecurityException;
 
 /**
@@ -21,8 +23,11 @@ public interface ICipher
 	 * @throws GeneralSecurityException
 	 * 		if encryption fails.
 	 */
-	byte[] encrypt(byte[] data)
-			throws GeneralSecurityException;
+	default byte[] encrypt(byte[] data)
+			throws GeneralSecurityException
+	{
+		return newCipher(CipherMode.ENCRYPT).doFinal(data);
+	}
 	
 	/**
 	 * Decrypts the provided data.
@@ -35,8 +40,11 @@ public interface ICipher
 	 * @throws GeneralSecurityException
 	 * 		if decryption fails.
 	 */
-	byte[] decrypt(byte[] data)
-			throws GeneralSecurityException;
+	default byte[] decrypt(byte[] data)
+			throws GeneralSecurityException
+	{
+		return newCipher(CipherMode.DECRYPT).doFinal(data);
+	}
 	
 	/**
 	 * Encrypts a subset of the provided data.
@@ -53,8 +61,11 @@ public interface ICipher
 	 * @throws GeneralSecurityException
 	 * 		if encryption fails.
 	 */
-	byte[] encrypt(byte[] data, int off, int len)
-			throws GeneralSecurityException;
+	default byte[] encrypt(byte[] data, int off, int len)
+			throws GeneralSecurityException
+	{
+		return newCipher(CipherMode.ENCRYPT).doFinal(data, off, len);
+	}
 	
 	/**
 	 * Decrypts a subset of the provided data.
@@ -71,6 +82,32 @@ public interface ICipher
 	 * @throws GeneralSecurityException
 	 * 		if decryption fails.
 	 */
-	byte[] decrypt(byte[] data, int off, int len)
+	default byte[] decrypt(byte[] data, int off, int len)
+			throws GeneralSecurityException
+	{
+		return newCipher(CipherMode.DECRYPT).doFinal(data, off, len);
+	}
+	
+	default CipherInputStream stream(InputStream input)
+			throws GeneralSecurityException
+	{
+		return new CipherInputStream(input, newCipher(CipherMode.DECRYPT));
+	}
+	
+	default CipherOutputStream stream(OutputStream output)
+			throws GeneralSecurityException
+	{
+		return new CipherOutputStream(output, newCipher(CipherMode.ENCRYPT));
+	}
+	
+	/**
+	 * Creates a fresh copy of this cipher ready to perform encryption/decryption.
+	 *
+	 * @param mode
+	 * 		the mode of this cipher
+	 *
+	 * @return a new configured cipher instance.
+	 */
+	Cipher newCipher(CipherMode mode)
 			throws GeneralSecurityException;
 }

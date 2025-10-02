@@ -1,13 +1,9 @@
 package org.zeith.crypto;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import javax.crypto.*;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.security.GeneralSecurityException;
-import java.security.PublicKey;
-
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
+import java.security.*;
 
 /**
  * The ClientCipher class handles encryption and decryption operations for the client-side
@@ -18,7 +14,6 @@ public class ClientCipher
 {
 	private final PublicKey publicKey;
 	private final SecretKey secretKey;
-	private final Cipher cipher;
 	
 	/**
 	 * Constructs a ClientCipher using the provided public and secret keys.
@@ -36,89 +31,15 @@ public class ClientCipher
 	{
 		this.publicKey = publicKey;
 		this.secretKey = secretKey;
-		this.cipher = Cipher.getInstance(secretKey.getAlgorithm());
 	}
 	
-	/**
-	 * Encrypts the provided data.
-	 *
-	 * @param data
-	 * 		the data to encrypt.
-	 *
-	 * @return the encrypted data.
-	 *
-	 * @throws GeneralSecurityException
-	 * 		if encryption fails.
-	 */
 	@Override
-	public byte[] encrypt(byte[] data)
+	public Cipher newCipher(CipherMode mode)
 			throws GeneralSecurityException
 	{
-		return encrypt(data, 0, data.length);
-	}
-	
-	/**
-	 * Decrypts the provided data.
-	 *
-	 * @param data
-	 * 		the data to decrypt.
-	 *
-	 * @return the decrypted data.
-	 *
-	 * @throws GeneralSecurityException
-	 * 		if decryption fails.
-	 */
-	@Override
-	public byte[] decrypt(byte[] data)
-			throws GeneralSecurityException
-	{
-		return decrypt(data, 0, data.length);
-	}
-	
-	/**
-	 * Encrypts a subset of the provided data.
-	 *
-	 * @param data
-	 * 		the data to encrypt.
-	 * @param off
-	 * 		the starting offset in the data.
-	 * @param len
-	 * 		the number of bytes to encrypt.
-	 *
-	 * @return the encrypted data.
-	 *
-	 * @throws GeneralSecurityException
-	 * 		if encryption fails.
-	 */
-	@Override
-	public byte[] encrypt(byte[] data, int off, int len)
-			throws GeneralSecurityException
-	{
-		cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-		return cipher.doFinal(data, off, len);
-	}
-	
-	/**
-	 * Decrypts a subset of the provided data.
-	 *
-	 * @param data
-	 * 		the data to decrypt.
-	 * @param off
-	 * 		the starting offset in the data.
-	 * @param len
-	 * 		the number of bytes to decrypt.
-	 *
-	 * @return the decrypted data.
-	 *
-	 * @throws GeneralSecurityException
-	 * 		if decryption fails.
-	 */
-	@Override
-	public byte[] decrypt(byte[] data, int off, int len)
-			throws GeneralSecurityException
-	{
-		cipher.init(Cipher.DECRYPT_MODE, secretKey);
-		return cipher.doFinal(data, off, len);
+		Cipher cipher = Cipher.getInstance(secretKey.getAlgorithm());
+		cipher.init(mode.mode, secretKey);
+		return cipher;
 	}
 	
 	/**
